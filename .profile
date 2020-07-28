@@ -7,18 +7,19 @@ curl -s https://crt.sh/?q\=%.$1\&output\=json | jq -r '.[].name_value' | sed 's/
 }
 
 fm(){ #command file manager
-if [ -f "~/go/bin/lf" ]; then
-    lf
+if [ "~/go/bin/lf" ] ; then
+ lf
 else
-go get -u github.com/gokcehan/lf && lf
+ go get -u github.com/gokcehan/lf && lf
 fi
 }
 
 sp(){ #spotify cli
-if [ -f "~/.local/bin/spotifycli" ]; then
-    spotifycli
+if [ "~/.local/bin/spotifycli" ];
+then
+ spotifycli
 else
-pip install spotify-cli-linux && spotifycli
+ pip install spotify-cli-linux && spotifycli
 fi
 }
 
