@@ -2,7 +2,7 @@ drs(){
 sudo dirsearch -u $1 -e $2 -t 50 -b 
 }
 
-nmapspeed(){
+nmapfast(){
 nmap -A -Pn -T4 $1 --min-rate 100 -v -oN /tmp/$1; printf "\n\nNmap out scan /tmp/"$1; echo
 }
 
