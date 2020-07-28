@@ -1,9 +1,46 @@
-dirsearch(){ runs dirsearch and takes host and extension as arguments
-python3 ~/tools/dirsearch/dirsearch.py -u $1 -e $2 -t 50 -b 
+drs(){
+sudo dirsearch -u $1 -e $2 -t 50 -b 
+}
+
+crtshdrs(){ #gets all domains from crtsh, runs httprobe and then dir bruteforcers
+curl -s https://crt.sh/?q\=%.$1\&output\=json | jq -r '.[].name_value' | sed 's/\*\.//g' | sort -u | httprobe -c 50 | grep https | xargs -n1 -I{} python3 ~/tools/dirsearch/dirsearch.py -u {} -e $2 -t 50 -b 
+}
+
+fm(){ #command file manager
+if [ -f "~/go/bin/lf" ]; then
+    lf
+else
+go get -u github.com/gokcehan/lf && lf
+fi
+}
+
+sp(){ #spotify cli
+if [ -f "~/.local/bin/spotifycli" ]; then
+    spotifycli
+else
+pip install spotify-cli-linux && spotifycli
+fi
 }
 
 myip(){
-curl http://ipecho.net/plain; echo
+curl http://ipinfo.io/$1; echo
+}
+
+ams(){ #runs amass passively and saves to json
+amass enum --passive -d $1 -json $1.json
+jq .name $1.json | sed "s/\"//g"| httprobe -c 60 | tee -a $1-domains.txt
+}
+
+ncx(){
+nc -l -n -vv -p $1 -k
+}
+
+s3ls(){
+aws s3 ls s3://$1
+}
+
+s3cp(){
+aws s3 cp $2 s3://$1 
 }
 
 ports(){
@@ -22,90 +59,11 @@ rot3(){
  tr 'd-za-cD-ZA-C' 'a-zA-Z'
 }
 
-rot4(){
- tr 'e-za-dE-ZA-D' 'a-zA-Z'
-}
-
-rot5(){
- tr 'f-za-eF-ZA-E' 'a-zA-Z'
-}
-
-rot6(){
- tr 'g-za-fG-ZA-F' 'a-zA-Z'
-}
-
 rot7(){
  tr 'h-za-gH-ZA-G' 'a-zA-Z'
 }
 
-rot8(){
- tr 'i-za-hI-ZA-H' 'a-zA-Z'
-}
-
-rot9(){
- tr '-za-iJ-ZA-I' 'a-zA-Z'
-}
-
-rot10(){
- tr 'k-za-jK-ZA-J' 'a-zA-Z'
-}
-
-rot11(){
- tr 'l-za-kL-ZA-K' 'a-zA-Z'
-}
-
-rot12(){
- tr 'm-za-lM-ZA-L' 'a-zA-Z'
-}
 
 rot13(){
  tr 'n-za-mN-ZA-M' 'a-zA-Z'
-}
-
-rot14(){
- tr 'o-za-nO-ZA-N' 'a-zA-Z'
-}
-
-rot15(){
- tr 'p-za-oP-ZA-O' 'a-zA-Z'
-}
-
-rot16(){
- tr 'q-za-pQ-ZA-P' 'a-zA-Z'
-}
-
-rot17(){
- tr 'r-za-qR-ZA-Q' 'a-zA-Z'
-}
-
-rot18(){
- tr 's-za-rS-ZA-R' 'a-zA-Z'
-}
-
-rot19(){
- tr 't-za-sT-ZA-S' 'a-zA-Z'
-}
-
-rot20(){
- tr 'u-za-tU-ZA-T' 'a-zA-Z'
-}
-
-rot21(){
- tr 'v-za-uV-ZA-U' 'a-zA-Z'
-}
-
-rot22(){
- tr 'w-za-vW-ZA-V' 'a-zA-Z'
-}
-
-rot23(){
- tr 'x-za-wX-ZA-W' 'a-zA-Z'
-}
-
-rot24(){
- tr 'y-za-xY-ZA-X' 'a-zA-Z'
-}
-
-rot25(){
- tr 'z-za-yZ-ZA-Y' 'a-zA-Z'
 }
