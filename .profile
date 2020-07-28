@@ -6,6 +6,10 @@ nmapspeed(){
 nmap -A -Pn -T4 $1 --min-rate 100 -v -oN /tmp/$1; printf "\n\nNmap out scan /tmp/"$1; echo
 }
 
+pingfast(){
+ping -c 5 $1
+}
+
 fm(){ #command file manager
 if [ "~/go/bin/lf" ] ; then
  lf
