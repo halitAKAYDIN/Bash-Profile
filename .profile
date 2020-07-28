@@ -2,8 +2,8 @@ drs(){
 sudo dirsearch -u $1 -e $2 -t 50 -b 
 }
 
-crtshdrs(){ #gets all domains from crtsh, runs httprobe and then dir bruteforcers
-curl -s https://crt.sh/?q\=%.$1\&output\=json | jq -r '.[].name_value' | sed 's/\*\.//g' | sort -u | httprobe -c 50 | grep https | xargs -n1 -I{} python3 ~/tools/dirsearch/dirsearch.py -u {} -e $2 -t 50 -b 
+nmapspeed(){
+nmap -A -Pn -T4 $1 --min-rate 100 -v
 }
 
 fm(){ #command file manager
@@ -30,6 +30,10 @@ curl http://ipinfo.io/$1; echo
 ams(){ #runs amass passively and saves to json
 amass enum --passive -d $1 -json $1.json
 jq .name $1.json | sed "s/\"//g"| httprobe -c 60 | tee -a $1-domains.txt
+}
+
+crtshdrs(){ #gets all domains from crtsh, runs httprobe and then dir bruteforcers
+curl -s https://crt.sh/?q\=%.$1\&output\=json | jq -r '.[].name_value' | sed 's/\*\.//g' | sort -u | httprobe -c 50 | grep https | xargs -n1 -I{} python3 ~/tools/dirsearch/dirsearch.py -u {} -e $2 -t 50 -b 
 }
 
 ncx(){
