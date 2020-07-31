@@ -2,6 +2,18 @@ drs(){
 sudo dirsearch -u $1 -e $2 -t 50 -b 
 }
 
+fastrecon(){
+mkdir ~/Recon/$1; cd ~/Recon/$1;
+subfinder -d $1 -silent -o $1_domains;
+naabu -hL $1_domains -silent -t 30 -o $1_ports;
+cat $1_ports | httprobe -c 30 > $1_schemes;
+nuclei -c 30 -t ~/nuclei-templates/subdomain-takeover/detect-*.yaml -silent -o $1_takeovers -l $1_schemes;
+dnsprobe -l $1_domains -o $1_ips -silent;
+dnsprobe -l $1_domains -r CNAME -o $1_cnames -silent;
+cat $1_schemes | aquatone -out $1_takeover_screens;
+cat $1_domains | aquatone -out $1_domains_screens;
+}
+
 nmapfast(){
 nmap -A -Pn -T4 $1 --min-rate 100 -v -oN /tmp/$1; printf "\n\nNmap out scan /tmp/"$1; echo
 }
