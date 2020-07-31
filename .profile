@@ -32,7 +32,7 @@ curl http://ipinfo.io/$1; echo
 }
 
 ams(){ #runs amass passively and saves to json
-amass enum --passive -d $1 -json $1.json
+amass enum -d $1 -json $1.json
 jq .name $1.json | sed "s/\"//g"| httprobe -c 60 | tee -a $1-domains.txt
 }
 
