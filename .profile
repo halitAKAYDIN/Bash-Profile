@@ -18,7 +18,7 @@ cat $1_domains | aquatone -out $1_domains_screens;
 ams(){
 mkdir ~/Recon/$1; cd ~/Recon/$1;
 amass enum -d $1 -json $1.json
-jq .name $1.json | sed "s/\"//g"| httprobe -c 60 | tee -a $1_domains
+jq .name $1.json | sed "s/\"//g"| httprobe -c 60 | tee -a $1_domainlist
 }
 
 nmapfast(){
