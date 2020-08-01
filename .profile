@@ -1,5 +1,6 @@
 drs(){
-sudo dirsearch -u $1 -e -b $2 -t 50 
+mkdir ~/Recon/$1; cd ~/Recon/$1;
+sudo dirsearch -u $1 -e -b $2 -t 50 -e sh,txt,php,html,htm,zip,tar.gz,tar -x 400,403,404 --plain-text-report=$1_dirs;
 }
 
 fastrecon(){
@@ -14,8 +15,15 @@ cat $1_schemes | aquatone -out $1_takeover_screens;
 cat $1_domains | aquatone -out $1_domains_screens;
 }
 
+ams(){
+mkdir ~/Recon/$1; cd ~/Recon/$1;
+amass enum -d $1 -json $1.json
+jq .name $1.json | sed "s/\"//g"| httprobe -c 60 | tee -a $1_domains
+}
+
 nmapfast(){
-nmap -A -Pn -T4 $1 --min-rate 100 -v -oN /tmp/$1; printf "\n\nNmap out scan /tmp/"$1; echo
+mkdir ~/Recon/$1; cd ~/Recon/$1;
+nmap -A -Pn -T4 $1 --min-rate 100 -v -oN $1_nmap;
 }
 
 pingfast(){
@@ -41,11 +49,6 @@ fi
 
 myip(){
 curl http://ipinfo.io/$1; echo
-}
-
-ams(){ #runs amass passively and saves to json
-amass enum -d $1 -json $1.json
-jq .name $1.json | sed "s/\"//g"| httprobe -c 60 | tee -a $1-domains.txt
 }
 
 ncx(){
