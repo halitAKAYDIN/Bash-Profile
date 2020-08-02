@@ -26,6 +26,10 @@ mkdir ~/Recon/$1; cd ~/Recon/$1;
 nmap -A -Pn -T4 $1 --min-rate 100 -v -oN $1_nmap;
 }
 
+virtualmachine(){ #Run VirtualBox in background
+VBoxManage startvm $1 --type headless
+}
+
 pingfast(){
 ping -c 5 $1
 }
