@@ -1,9 +1,9 @@
 drs(){
 mkdir ~/Recon/$1; cd ~/Recon/$1;
-sudo dirsearch -u $1 -e -b $2 -t 50 -e sh,txt,php,html,htm,zip,tar.gz,tar -x 400,403,404 --plain-text-report=$1_dirs;
+sudo python3 ~/.local/bin/dirsearch/dirsearch.py -u $1 -e -b $2 -t 50 -e sh,txt,php,html,htm,zip,tar.gz,tar -x 400,403,404 --plain-text-report=$1_dirs;
 }
 
-fastrecon(){ # fastrecon example.com
+fastrecon(){
 mkdir ~/Recon/$1; cd ~/Recon/$1;
 subfinder -d $1 -silent -o $1_domains;
 naabu -hL $1_domains -silent -t 30 -o $1_ports;
@@ -27,62 +27,32 @@ echo "Scan All Url";
 cat $1_domains | sudo gau > $1_domains_allurl
 }
 
+nmapfast(){
+mkdir ~/Recon/$1; cd ~/Recon/$1;
+nmap -A -Pn -T4 $1 --min-rate 100 -v -oN $1_nmap;
+}
+
 ams(){
 mkdir ~/Recon/$1; cd ~/Recon/$1;
 amass enum -d $1 -json $1.json
 jq .name $1.json | sed "s/\"//g"| httprobe -c 60 | tee -a $1_domainlist
 }
 
-nmapfast(){
-mkdir ~/Recon/$1; cd ~/Recon/$1;
-nmap -A -Pn -T4 $1 --min-rate 100 -v -oN $1_nmap;
-}
-
 virtualmachine(){ #Run VirtualBox in background
 VBoxManage startvm $1 --type headless
-}
-
-pingfast(){
-ping -c 5 $1
-}
-
-fm(){ #command file manager
-if [ "~/go/bin/lf" ] ; then
- lf
-else
- go get -u github.com/gokcehan/lf && lf
-fi
-}
-
-sp(){ #spotify cli
-if [ "~/.local/bin/spotifycli" ];
-then
- spotifycli
-else
- pip install spotify-cli-linux && spotifycli
-fi
 }
 
 myip(){
 curl http://ipinfo.io/$1; echo
 }
 
-ncx(){
-nc -l -n -vv -p $1 -k
+im(){ # image manager
+tiv $1;
 }
 
-s3ls(){
-aws s3 ls s3://$1
+rec(){
+asciinema rec;
 }
-
-s3cp(){
-aws s3 cp $2 s3://$1 
-}
-
-ports(){
-netstat -tulanp
-}
-
 
 twitch(){
 streamlink --twitch-disable-ads https://www.twitch.tv/$1 best
@@ -100,5 +70,3 @@ rot7(){
 rot13(){
  tr 'n-za-mN-ZA-M' 'a-zA-Z'
 }
-
-
