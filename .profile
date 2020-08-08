@@ -3,16 +3,28 @@ mkdir ~/Recon/$1; cd ~/Recon/$1;
 sudo dirsearch -u $1 -e -b $2 -t 50 -e sh,txt,php,html,htm,zip,tar.gz,tar -x 400,403,404 --plain-text-report=$1_dirs;
 }
 
-fastrecon(){
+fastrecon(){ # fastrecon example.com
 mkdir ~/Recon/$1; cd ~/Recon/$1;
 subfinder -d $1 -silent -o $1_domains;
 naabu -hL $1_domains -silent -t 30 -o $1_ports;
 cat $1_ports | httprobe -c 30 > $1_schemes;
-nuclei -c 30 -t ~/nuclei-templates/subdomain-takeover/detect-*.yaml -silent -o $1_takeovers -l $1_schemes;
+nuclei -c 30 -t ~/nuclei-templates/subdomain-takeover/ -o $1_takeovers -l $1_schemes;
+nuclei -c 30 -t ~/nuclei-templates/basic-detections/ -o $1_basic -l $1_schemes;
+nuclei -c 30 -t ~/nuclei-templates/cves/ -o $1_cves -l $1_schemes;
+nuclei -c 30 -t ~/nuclei-templates/dns/ -o $1_dbs -l $1_schemes;
+nuclei -c 30 -t ~/nuclei-templates/files/ -o $1_files -l $1_schemes;
+nuclei -c 30 -t ~/nuclei-templates/panels/ -o $1_panels -l $1_schemes;
+nuclei -c 30 -t ~/nuclei-templates/security-misconfiguration/ -o $1_security -l $1_schemes;
+nuclei -c 30 -t ~/nuclei-templates/technologies/ -o $1_technologies -l $1_schemes;
+nuclei -c 30 -t ~/nuclei-templates/tokens/ -o $1_token -l $1_schemes;
+nuclei -c 30 -t ~/nuclei-templates/vulnerabilities/ -o $1_vuln -l $1_schemes;
+nuclei -c 30 -t ~/nuclei-templates/workflows/ -o $1_workflows -l $1_schemes;
 dnsprobe -l $1_domains -o $1_ips -silent;
 dnsprobe -l $1_domains -r CNAME -o $1_cnames -silent;
-cat $1_schemes | aquatone -out $1_takeover_screens;
-cat $1_domains | aquatone -out $1_domains_screens;
+cat $1_schemes | aquatone -out $1_takeover_screen;
+cat $1_domains | aquatone -out $1_domains_screen;
+echo "Scan All Url";
+cat $1_domains | sudo gau > $1_domains_allurl
 }
 
 ams(){
