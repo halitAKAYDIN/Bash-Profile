@@ -1,6 +1,6 @@
 drs(){
 mkdir ~/Recon/$1; cd ~/Recon/$1;
-sudo python3 ~/.local/bin/dirsearch/dirsearch.py -u $1 -e -b $2 -t 50 -e sh,txt,php,html,htm,zip,tar.gz,tar -x 400,403,404 --plain-text-report=$1_dirs;
+sudo python3 ~/.local/bin/dirsearch/dirsearch.py -u $1 -e -b $2 -t 50 -e sh,txt,php,html,htm,zip,tar.gz,tar,json -x 400,403,404 --plain-text-report=$1_dirs;
 }
 
 fastrecon(){
@@ -14,7 +14,6 @@ nuclei -c 30 -t ~/nuclei-templates/cves/ -o $1_cves -l $1_schemes;
 nuclei -c 30 -t ~/nuclei-templates/dns/ -o $1_dbs -l $1_schemes;
 nuclei -c 30 -t ~/nuclei-templates/files/ -o $1_files -l $1_schemes;
 nuclei -c 30 -t ~/nuclei-templates/panels/ -o $1_panels -l $1_schemes;
-nuclei -c 30 -t ~/nuclei-templates/security-misconfiguration/ -o $1_security -l $1_schemes;
 nuclei -c 30 -t ~/nuclei-templates/technologies/ -o $1_technologies -l $1_schemes;
 nuclei -c 30 -t ~/nuclei-templates/tokens/ -o $1_token -l $1_schemes;
 nuclei -c 30 -t ~/nuclei-templates/vulnerabilities/ -o $1_vuln -l $1_schemes;
@@ -23,8 +22,6 @@ dnsprobe -l $1_domains -o $1_ips -silent;
 dnsprobe -l $1_domains -r CNAME -o $1_cnames -silent;
 cat $1_schemes | aquatone -out $1_takeover_screen;
 cat $1_domains | aquatone -out $1_domains_screen;
-echo "Scan All Url";
-cat $1_domains | sudo gau > $1_domains_allurl
 }
 
 nmapfast(){
