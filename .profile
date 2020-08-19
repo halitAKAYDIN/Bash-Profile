@@ -1,6 +1,6 @@
 drs(){
 mkdir ~/Recon/$1; cd ~/Recon/$1;
-sudo python3 ~/.local/bin/dirsearch/dirsearch.py -u $1 -e -b $2 -t 50 -e sh,txt,php,html,htm,zip,tar.gz,tar,json -x 400,403,404 --plain-text-report=$1_dirs;
+sudo python3 ~/.local/bin/dirsearch/dirsearch.py -u $1 -b -f -l -r -e sh,txt,php,html,htm,zip,tar.gz,tar,json -x 400,403,404 --plain-text-report=$1_dirs;
 }
 
 fastrecon(){
@@ -26,7 +26,7 @@ cat $1_domains | aquatone -out $1_domains_screen;
 
 nmapfast(){
 mkdir ~/Recon/$1; cd ~/Recon/$1;
-nmap -A -Pn -T4 $1 --min-rate 100 -v -oN $1_nmap;
+nmap -A -Pn -T4 $1 --min-rate 100 -v -oN $1_nmap $2;
 }
 
 ams(){
@@ -39,12 +39,20 @@ virtualmachine(){ #Run VirtualBox in background
 VBoxManage startvm $1 --type headless
 }
 
+maps(){
+telnet mapscii.me;
+}
+
 myip(){
 curl http://ipinfo.io/$1; echo
 }
 
 im(){ # image manager
 tiv $1;
+}
+
+spf(){
+spotifycli
 }
 
 rec(){
