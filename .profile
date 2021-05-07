@@ -3,6 +3,13 @@ mkdir ~/Recon/$1; cd ~/Recon/$1;
 sudo python3 ~/.local/bin/dirsearch/dirsearch.py -u $1 -b -f -l -r -e sh,txt,php,html,htm,zip,tar.gz,tar,json -x 400,403,404 --plain-text-report=$1_dirs;
 }
 
+openurl(){
+ while read -r line; do
+     google-chrome-stable -new-tab "$line" 2>/dev/null &
+     sleep 2
+ done < "$1"
+}
+
 fastrecon(){
 mkdir ~/Recon/$1; cd ~/Recon/$1;
 ~/fastrecon/subfinder -d $1 -silent -o $1_domains;
