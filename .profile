@@ -37,7 +37,7 @@ nmap -A -Pn -T4 $1 --min-rate 100 -v -oN $1_nmap $2;
 }
 
 sqli(){
-python3 ~/Tools/sqlmap/sqlmap.py -u $1 --drop-set-cookie --random-agent --tamper="between,randomcase,space2comment" --tor --tor-type="SOCKS5" --tor-port=9050 --level 3 --risk 3 --threads 10 --time-sec 10 --batch --eta $2
+python3 ~/Tools/sqlmap/sqlmap.py -u $1 --headers="X-HackerOne:hLtAkydn" --random-agent --tamper between,randomcase,space2comment --level 5 --risk 3 --threads 10 --time-sec 10 --batch $2
 }
 
 xss(){
