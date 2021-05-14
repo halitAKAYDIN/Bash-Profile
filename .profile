@@ -1,15 +1,3 @@
-drs(){
-mkdir ~/Recon/$1; cd ~/Recon/$1;
-python3 ~Tools/dirsearch/dirsearch.py -u $1 -b -f -r -e sh,txt,php,html,htm,zip,tar.gz,tar,json -x 400,403,404 -o=$1_dirs;
-}
-
-openurl(){
- while read -r line; do
-     google-chrome-stable -new-tab "$line" 2>/dev/null &
-     sleep 2
- done < "$1"
-}
-
 fastrecon(){
 mkdir ~/Recon/$1; cd ~/Recon/$1;
 ~/Tools/subfinder -d $1 -silent -o $1_domains;
@@ -31,13 +19,25 @@ cat $1_ports | ~/Tools/httprobe > $1_schemes;
 ~/Tools/cat $1_domains | ~/Tools/aquatone -out $1_domains_screen;
 }
 
+drs(){
+mkdir ~/Recon/$1; cd ~/Recon/$1;
+python3 ~Tools/dirsearch/dirsearch.py -u $1 -b -f -r -e sh,txt,php,html,htm,zip,tar.gz,tar,json -x 400,403,404 -o=$1_dirs;
+}
+
+openurl(){
+ while read -r line; do
+     google-chrome-stable -new-tab "$line" 2>/dev/null &
+     sleep 2
+ done < "$1"
+}
+
 nmapfast(){
 mkdir ~/Recon/$1; cd ~/Recon/$1;
 nmap -A -Pn -T4 $1 --min-rate 100 -v -oN $1_nmap $2;
 }
 
 sqli(){
-python3 ~/Tools/sqlmap/sqlmap.py -u $1 --headers="X-HackerOne:hLtAkydn" --random-agent --tamper between,randomcase,space2comment --level 5 --risk 3 --threads 10 --time-sec 10 --batch --alert="./sqli2telegram.sh $1" $2
+python3 ~/Tools/sqlmap/sqlmap.py -u $1 --headers="X-HackerOne:hLtAkydn" --random-agent --tamper randomcase --level 5 --risk 3 --threads 10 --time-sec 10 --batch --alert="./sqli2telegram.sh $1" $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 $14 $15
 }
 
 xss(){
@@ -49,7 +49,7 @@ python3 ~/Tools/ParamSpider/paramspider.py --domain $1 --level high --subs False
 }
 
 fuzz(){
-ffuf -c -ac -r -w ~/Tools/OneListForAll/onelistforallshort.txt -u "$1" -fc 401,403 # example: fuzz site.com/?q=FUZZ
+ffuf -c -ac -r -w ~/Tools/OneListForAll/onelistforallshort.txt -u $1 -fc 401,403 # example: fuzz site.com/?q=FUZZ
 }
 
 ams(){
