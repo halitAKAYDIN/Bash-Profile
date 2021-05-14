@@ -21,7 +21,7 @@ cat $1_ports | ~/Tools/httprobe > $1_schemes;
 
 drs(){
 mkdir ~/Recon/$1; cd ~/Recon/$1;
-python3 ~Tools/dirsearch/dirsearch.py -u $1 -b -f -r -e sh,txt,php,html,htm,zip,tar.gz,tar,json -x 400,403,404 -o=$1_dirs;
+python3 ~/Tools/dirsearch/dirsearch.py -u $1 -b -f -r -e sh,txt,php,html,htm,zip,tar.gz,tar,json -x 400,403,404 -o=$1_dirs;
 }
 
 openurl(){
@@ -37,7 +37,8 @@ nmap -A -Pn -T4 $1 --min-rate 100 -v -oN $1_nmap $2;
 }
 
 sqli(){
-python3 ~/Tools/sqlmap/sqlmap.py -u $1 --headers="X-HackerOne:hLtAkydn" --random-agent --tamper randomcase --level 5 --risk 3 --threads 10 --time-sec 10 --batch --alert="./sqli2telegram.sh $1" $@
+python3 ~/Tools/sqlmap/sqlmap.py -u $1 --headers="X-HackerOne:hLtAkydn" --random-agent --tamper between,randomcase,space2comment --level 5 --risk 3 --threads 10 --time-sec 10 --batch --alert="./sqli2telegram.sh $1" $@
+#--tor --tor-type=SOCKS5 --tor-port=9050
 }
 
 xss(){
