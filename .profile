@@ -1,27 +1,20 @@
-fastrecon(){
-mkdir ~/Recon/$1; cd ~/Recon/$1;
-~/Tools/subfinder -d $1 -silent -o $1_domains;
-~/Tools/naabu -iL $1_domains -silent -t 30 -o $1_ports;
-cat $1_ports | ~/Tools/httprobe > $1_schemes;
-~/Tools/nuclei -c 30 -t ~/nuclei-templates/subdomain-takeover/ -o $1_takeovers -l $1_schemes;
-~/Tools/nuclei -c 30 -t ~/nuclei-templates/basic-detections/ -o $1_basic -l $1_schemes;
-~/Tools/nuclei -c 30 -t ~/nuclei-templates/cves/ -o $1_cves -l $1_schemes;
-~/Tools/nuclei -c 30 -t ~/nuclei-templates/dns/ -o $1_dbs -l $1_schemes;
-~/Tools/nuclei -c 30 -t ~/nuclei-templates/files/ -o $1_files -l $1_schemes;
-~/Tools/nuclei -c 30 -t ~/nuclei-templates/panels/ -o $1_panels -l $1_schemes;
-~/Tools/nuclei -c 30 -t ~/nuclei-templates/technologies/ -o $1_technologies -l $1_schemes;
-~/Tools/nuclei -c 30 -t ~/nuclei-templates/tokens/ -o $1_token -l $1_schemes;
-~/Tools/nuclei -c 30 -t ~/nuclei-templates/vulnerabilities/ -o $1_vuln -l $1_schemes;
-~/Tools/nuclei -c 30 -t ~/nuclei-templates/workflows/ -o $1_workflows -l $1_schemes;
-~/Tools/dnsprobe -l $1_domains -o $1_ips ;
-~/Tools/dnsprobe -l $1_domains -r CNAME -o $1_cnames -silent;
-~/Tools/cat $1_schemes | ~/Tools/aquatone -out $1_takeover_screen;
-~/Tools/cat $1_domains | ~/Tools/aquatone -out $1_domains_screen;
+takeover() {
+    mkdir ~/Recon/$1; cd ~/Recon/$1; mkdir screenshots;
+    subfinder -t 100 -d $1 -o $1_domains;
+    naabu -iL $1_domains -o $1_ports;
+    cat $1_ports | httprobe -c 30 > $1_schemes;
+    nuclei -rl 250 -c 50 -t ~/nuclei-templates/subdomain-takeover/ -o $1_takeovers -l $1_schemes;
+
+    dnsprobe -t 500 -l $1_domains -o $1_ips;
+    dnsprobe -t 500 -l $1_domains -r CNAME -o $1_cnames;
+
+	gowitness file -f $1_schemes --threads 100
+	gowitness report serve;
 }
 
 drs(){
 mkdir ~/Recon/$1; cd ~/Recon/$1;
-python3 ~/Tools/dirsearch/dirsearch.py -u $1 -b -f -r -e sh,txt,php,html,htm,zip,tar.gz,tar,json -x 400,403,404 -o=$1_dirs;
+python3 ~/Tools/dirsearch/dirsearch.py --random-agent -t 100 -u $1 -b -f -r -e sh,txt,php,html,htm,zip,tar.gz,tar,json -x 400,403,404 -o=$1_dirs --format=simple;
 }
 
 openurl(){
@@ -31,22 +24,58 @@ openurl(){
  done < "$1"
 }
 
+s3ls(){
+aws s3 ls s3://$1
+}
+
+s3cp(){
+aws s3 cp $2 s3://$1 
+}
+
+crtsh(){
+curl -s https://crt.sh/?Identity=%.$1 | grep ">*.$1" | sed 's/<[/]*[TB][DR]>/\n/g' | grep -vE "<|^[\*]*[\.]*$1" | sort -u | awk 'NF'
+}
+
 nmapfast(){
 mkdir ~/Recon/$1; cd ~/Recon/$1;
 nmap -A -Pn -T4 $1 --min-rate 100 -v -oN $1_nmap $2;
 }
 
 sqli(){
-python3 ~/Tools/sqlmap/sqlmap.py -u $1 --headers="X-HackerOne:hLtAkydn" --random-agent --tamper between,randomcase,space2comment --level 5 --risk 3 --threads 10 --time-sec 10 --batch --alert="./sqli2telegram.sh $1" $@
-#--tor --tor-type=SOCKS5 --tor-port=9050
+python3 ~/Tools/sqlmap/sqlmap.py -u $1 --headers="X-HackerOne:" --random-agent --level 5 --risk 3 --banner --threads 10 --time-sec 10 --retries 5 --batch --alert="./sqli2telegram.sh $1" $@
+# --level 5 --risk 3
+# --drop-set-cookie
+# --csrf-token
+# --tor --tor-type=SOCKS5 --tor-port=9050
+# --forms
+
+# General scripts
+# --tamper=apostrophemask,apostrophenullencode,base64encode,between,chardoubleencode,charencode,charunicodeencode,equaltolike,greatest,ifnull2ifisnull,multiplespaces,percentage,randomcase,space2comment,space2plus,space2randomblank,unionalltounion,unmagicquotes
+# Microsoft access
+# --tamper=between,bluecoat,charencode,charunicodeencode,concat2concatws,equaltolike,greatest,halfversionedmorekeywords,ifnull2ifisnull,modsecurityversioned,modsecurityzeroversioned,multiplespaces,percentage,randomcase,space2comment,space2hash,space2morehash,space2mysqldash,space2plus,space2randomblank,unionalltounion,unmagicquotes,versionedkeywords,versionedmorekeywords
+# Microsoft SQL Server
+# --tamper=between,charencode,charunicodeencode,equaltolike,greatest,multiplespaces,percentage,randomcase,sp_password,space2comment,space2dash,space2mssqlblank,space2mysqldash,space2plus,space2randomblank,unionalltounion,unmagicquotes
+# MySQL
+# --tamper=between,bluecoat,charencode,charunicodeencode,concat2concatws,equaltolike,greatest,halfversionedmorekeywords,ifnull2ifisnull,modsecurityversioned,multiplespaces,percentage,randomcase,space2comment,space2hash,space2morehash,space2mysqldash,space2plus,space2randomblank,unionalltounion,unmagicquotes,versionedkeywords,versionedmorekeywords,xforwardedfor
+# Oracle
+# --tamper=between,charencode,equaltolike,greatest,multiplespaces,randomcase,space2comment,space2plus,space2randomblank,unionalltounion,unmagicquotes,xforwardedfor
+# PostgreSQL
+# --tamper=between,charencode,charunicodeencode,equaltolike,greatest,multiplespaces,nonrecursivereplacement,percentage,randomcase,securesphere,space2comment,space2plus,space2randomblank,xforwardedfor
+# SAP MaxDB
+# --tamper=ifnull2ifisnull,nonrecursivereplacement,randomcase,securesphere,space2comment,space2plus,unionalltounion,unmagicquotes,xforwardedfor
+# SQLite
+# --tamper=ifnull2ifisnull,multiplespaces,nonrecursivereplacement,randomcase,securesphere,space2comment,space2dash,space2plus,unionalltounion,unmagicquotes,xforwardedfor
 }
 
 xss(){
-python3 ~/Tools/XSStrike/xsstrike.py -u $1
+python3 ~/Tools/XSStrike/xsstrike.py -t 10 -u $@
+# --seeds ~/example.com.txt -e base64 -f ~/xss.tx
 }
 
 param(){
-python3 ~/Tools/ParamSpider/paramspider.py --domain $1 --level high --subs False --exclude woff,css,js,png,svg,php,jpg
+mkdir ~/Recon/$1;
+python3 ~/Tools/ParamSpider/paramspider.py --domain $1 --level high --exclude woff,css,js,png,svg,php,jpg --output ~/Recon/$1.txt
+# --subs False
 }
 
 fuzz(){
@@ -106,4 +135,8 @@ rot7(){
 
 rot13(){
  tr 'n-za-mN-ZA-M' 'a-zA-Z'
+}
+
+caesar(){
+ tr '[X-ZA-W]' '[A-Z]'
 }
