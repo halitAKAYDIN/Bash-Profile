@@ -148,6 +148,14 @@ phone(){
     scrcpy;
 }
 
+rsa(){
+    echo "N: "; read N
+    echo "E: "; read E
+    echo "C: "; read C
+    
+    python3 ~/Tools/RsaCtfTool/RsaCtfTool.py -n $N -e $E --uncipher $C
+}
+
 base(){ # base "aEx0QWt5ZG4="
     echo "$@" | base32 -d; echo "└────Base32"
     echo "$@" | base58 -d; echo "└────Base58"
