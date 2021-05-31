@@ -1,4 +1,4 @@
-fastrecon(){
+fastrecon(){ # fastrecon example.com
     mkdir ~/Recon/$1; cd ~/Recon/$1; mkdir screenshots;
     ~/Tools/subfinder -t 100 -d $1 -silent -o $1_domains -timeout 10;
     ~/Tools/naabu -iL $1_domains -silent -o $1_ports;
@@ -18,7 +18,7 @@ fastrecon(){
     cat $1_domains | ~/Tools/aquatone -out $1_domains_screen;
 }
 
-takeover() {
+takeover() { # takeover example.com
     mkdir ~/Recon/$1; cd ~/Recon/$1; mkdir screenshots;
     subfinder -t 100 -d $1 -o $1_domains;
     naabu -iL $1_domains -o $1_ports;
@@ -32,12 +32,12 @@ takeover() {
     gowitness report serve;
 }
 
-drs(){
+drs(){ # drs example.com
     mkdir ~/Recon/$1; cd ~/Recon/$1;
     python3 ~/Tools/dirsearch/dirsearch.py --random-agent -t 100 -u $1 -b -f -r -e sh,txt,php,html,htm,zip,tar.gz,tar,json -x 400,403,404 -o=$1_dirs --format=simple;
 }
 
-openurl(){
+openurl(){ # openurl url.txt
     while read -r line; do
         google-chrome-stable -new-tab "$line" 2>/dev/null &
         sleep 2
@@ -61,8 +61,8 @@ nmapfast(){
     nmap -A -Pn -T4 $1 --min-rate 100 -v -oN $1_nmap $2;
 }
 
-sqli(){
-    python3 ~/Tools/sqlmap/sqlmap.py -u $1 --headers="X-HackerOne:" --random-agent --level 5 --risk 3 --banner --threads 10 --time-sec 10 --retries 5 --batch --alert="./sqli2telegram.sh $1" $@
+sqli(){ # sqli example.com
+    python3 ~/Tools/sqlmap/sqlmap.py -u $1 --headers="X-Pentester:hLtAkydn" --random-agent --level 5 --risk 3 --banner --threads 10 --time-sec 10 --retries 5 --batch --alert="./sqli2telegram.sh $1" $@
     # --level 5 --risk 3
     # --drop-set-cookie
     # --csrf-token
@@ -87,22 +87,22 @@ sqli(){
     # --tamper=ifnull2ifisnull,multiplespaces,nonrecursivereplacement,randomcase,securesphere,space2comment,space2dash,space2plus,unionalltounion,unmagicquotes,xforwardedfor
 }
 
-xss(){
+xss(){ # xss example.com
     python3 ~/Tools/XSStrike/xsstrike.py -t 10 -u $@
     # --seeds ~/example.com.txt -e base64 -f ~/xss.tx
 }
 
-param(){
+param(){ # param example.com
     mkdir ~/Recon/$1;
     python3 ~/Tools/ParamSpider/paramspider.py --domain $1 --level high --exclude woff,css,js,png,svg,php,jpg --output ~/Recon/$1.txt
     # --subs False
 }
 
-fuzz(){
+fuzz(){ # fuzz example.com
     ffuf -c -ac -r -w ~/Tools/OneListForAll/onelistforallshort.txt -u $1 -fc 401,403 # example: fuzz site.com/?q=FUZZ
 }
 
-ams(){
+ams(){ # amas example.com
     mkdir ~/Recon/$1; cd ~/Recon/$1;
     amass enum -d $1 -json $1.json
     jq .name $1.json | sed "s/\"//g"| httprobe -c 60 | tee -a $1_domainlist
@@ -124,7 +124,7 @@ myip(){
     curl http://ipinfo.io/$1; echo
 }
 
-im(){ # image manager
+im(){ # im pic.jpg
     fim $1;
 }
 
@@ -140,7 +140,7 @@ rec(){
     asciinema rec;
 }
 
-twitch(){
+twitch(){ # twitch hLtAkydn
     streamlink --twitch-disable-ads https://www.twitch.tv/$1 best
 }
 
@@ -148,13 +148,13 @@ phone(){
     scrcpy;
 }
 
-base(){
+base(){ # base "aEx0QWt5ZG4="
     echo "$@" | base32 -d; echo "└────Base32"
     echo "$@" | base58 -d; echo "└────Base58"
     echo "$@" | base64 -d; echo "└────Base64"
 }
 
-rot(){ #rot "gKsZjxcm"
+rot(){ # rot "gKsZjxcm"
     echo "$@" | tr 'd-za-cD-ZA-C' 'a-zA-Z'; echo "└────Rot3"
     echo "$@" | tr 'e-za-dE-ZA-D' 'a-zA-Z'; echo "└────Rot4"
     echo "$@" | tr 'f-za-eF-ZA-E' 'a-zA-Z'; echo "└────Rot5"
@@ -182,7 +182,7 @@ rot(){ #rot "gKsZjxcm"
 }
 
 
-caesar(){ #caesar "iMuBlzeo"
+caesar(){ # caesar "iMuBlzeo"
     decaesar(){
         local value
         local cipher
