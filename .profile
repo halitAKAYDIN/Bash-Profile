@@ -148,6 +148,12 @@ phone(){
     scrcpy;
 }
 
+base(){
+    echo "$@" | base32 -d; echo "└────Base32"
+    echo "$@" | base58 -d; echo "└────Base58"
+    echo "$@" | base64 -d; echo "└────Base64"
+}
+
 rot(){ #rot "gKsZjxcm"
     echo "$@" | tr 'd-za-cD-ZA-C' 'a-zA-Z'; echo "└────Rot3"
     echo "$@" | tr 'e-za-dE-ZA-D' 'a-zA-Z'; echo "└────Rot4"
@@ -188,6 +194,6 @@ caesar(){ #caesar "iMuBlzeo"
     }
     
     for i in {1..26};do
-        printf "${P}$((26-i)) ${N} ${G}$(decaesar "$@" $i)${N}\n";
+        printf "$(decaesar "$@" $i)\n";
     done
 }
