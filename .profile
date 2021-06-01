@@ -98,9 +98,8 @@ param(){ # param example.com
     # --subs False
 }
 
-fuzz(){ # fuzz example.com
-    ffuf -c -ac -r -w ~/Tools/OneListForAll/onelistforallshort.txt -u $1 -fc 401,403 # example: fuzz site.com/?q=FUZZ
-}
+fuzz(){ # fuzz example.com/?q=FUZZ
+    ffuf -c -ac -r -w ~/Tools/OneListForAll/onelistforallshort.txt -u $1 -fc 401,403 
 
 ams(){ # amas example.com
     mkdir ~/Recon/$1; cd ~/Recon/$1;
