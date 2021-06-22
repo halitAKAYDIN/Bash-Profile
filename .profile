@@ -62,7 +62,7 @@ nmapfast(){
 }
 
 sqli(){ # sqli example.com
-    python3 ~/Tools/sqlmap/sqlmap.py -u $1 --headers="X-Pentester:hLtAkydn" --random-agent --level 5 --risk 3 --banner --threads 10 --time-sec 10 --retries 5 --batch --alert="./sqli2telegram.sh $1" $@
+    python3 ~/Tools/sqlmap/sqlmap.py -u $1 --headers="X-Pentester:hLtAkydn" --random-agent --banner --threads 10 --time-sec 10 --retries 5 --batch --alert="./sqli2telegram.sh $1" $@
     # --level 5 --risk 3
     # --drop-set-cookie
     # --csrf-token
@@ -98,8 +98,9 @@ param(){ # param example.com
     # --subs False
 }
 
-fuzz(){ # fuzz example.com/?q=FUZZ
-    ffuf -c -ac -r -w ~/Tools/OneListForAll/onelistforallshort.txt -u $1 -fc 401,403 
+fuzz(){ # fuzz site.com/?q=FUZZ
+    ffuf -c -ac -r -w ~/Tools/OneListForAll/onelistforallshort.txt -u $1 -fc 401,403
+}
 
 ams(){ # amas example.com
     mkdir ~/Recon/$1; cd ~/Recon/$1;
@@ -188,6 +189,25 @@ rot(){ # rot "gKsZjxcm"
     echo "$@" | tr '\!-~' 'P-~\!-O'; echo "└────Rot47"
 }
 
+hex(){
+    echo "$@" | xxd -r -p
+}
+
+urlencode() { # urlencode "hello world"
+    local _length="${#1}"
+    for (( _offset = 0 ; _offset < _length ; _offset++ )); do
+        _print_offset="${1:_offset:1}"
+        case "${_print_offset}" in
+            [a-zA-Z0-9.~_-]) printf "${_print_offset}" ;;
+            ' ') printf + ;;
+            *) printf '%%%X' "'${_print_offset}" ;;
+        esac
+    done
+}
+
+urldecode() { # urldecode "hello+%26+world"
+   echo "$@" | sed 's@+@ @g;s@%@\\x@g' | xargs -0 printf "%b"
+}
 
 caesar(){ # caesar "iMuBlzeo"
     decaesar(){
