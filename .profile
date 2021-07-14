@@ -279,8 +279,14 @@ rot() { # rot "gKsZjxcm"
     echo -e "\e[32m  └────Rot47 \033[0m"
 }
 
-hex(){
-    echo -e "$@" | xxd -r -p | grep .
+hex(){ # hex "68 4c 74 41 6b 79 64 6e"
+    if [[ $1 == "-e" ]]; then
+        echo $2 | xxd -ps | grep .
+    elif [[ $@ == "" ]]; then
+        echo "Enter a value!\nExample: hex '68 4c 74 41 6b 79 64 6e'"
+    else
+        echo "$@" | xxd -r -p | grep .
+    fi
 }
 
 urlencode() { # urlencode "hello world"
