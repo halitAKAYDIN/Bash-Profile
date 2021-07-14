@@ -34,7 +34,7 @@ takeover() { # takeover example.com
 
 drs(){ # drs example.com
     mkdir ~/Recon/$1; cd ~/Recon/$1;
-    python3 ~/Tools/dirsearch/dirsearch.py --random-agent -t 100 -u $1 -b -f -r -e sh,txt,php,html,htm,zip,tar.gz,tar,json -x 400,403,404 -o=$1_dirs --format=simple;
+    python3 ~/Tools/dirsearch/dirsearch.py --random-agent -t 1000 -u $1 -b -f -r -e sh,txt,php,html,htm,zip,tar.gz,tar,json -x 400,403,404 -o=$1_dirs --format=simple;
 }
 
 openurl(){ # openurl url.txt
@@ -62,7 +62,7 @@ nmapfast(){
 }
 
 sqli(){ # sqli example.com
-    python3 ~/Tools/sqlmap/sqlmap.py -u $1 --headers="X-Pentester:hLtAkydn" --random-agent --banner --threads 10 --time-sec 10 --retries 5 --batch --alert="./sqli2telegram.sh $1" $@
+    python3 ~/Tools/sqlmap/sqlmap.py -u $1 --random-agent --banner --threads 10 --time-sec 10 --retries 5 --batch --alert="./sqli2telegram.sh $1" $@
     # --level 5 --risk 3
     # --drop-set-cookie
     # --csrf-token
@@ -121,7 +121,26 @@ maps(){
 }
 
 myip(){
-    curl http://ipinfo.io/$1; echo
+    extIp=$(dig +short myip.opendns.com @resolver1.opendns.com)
+
+    printf "\e[32mWireless IP: \033[0m"
+    my_ip=$(/sbin/ifconfig wlan0 | awk '/inet/ { print $2 } ' |
+      sed -e s/addr://)
+    echo ${my_ip:-"Not connected"}
+
+
+    printf "\e[32mWired IP: \033[0m"
+    my_ip=$(/sbin/ifconfig eth0 | awk '/inet/ { print $2 } ' |
+      sed -e s/addr://)
+    echo ${my_ip:-"Not connected"}
+
+    printf "\e[32mVpn IP: \033[0m"
+    my_ip=$(/sbin/ifconfig tun0 | awk '/inet/ { print $2 } ' |
+      sed -e s/addr://)
+    echo ${my_ip:-"Not connected"}
+
+    echo ""
+    echo "\e[32mWAN IP: \033[0m$extIp"
 }
 
 im(){ # im pic.jpg
@@ -141,12 +160,33 @@ rec(){
 }
 
 twitch(){ # twitch hLtAkydn
-    streamlink --twitch-disable-ads https://www.twitch.tv/$1 best
+    streamlink --twitch-disable-ads https://www.twitch.tv/$1 best -Q &
 }
 
-phone(){
-    scrcpy;
+phone() {
+    adb kill-server &>/dev/null
+    adb start-server &>/dev/null
+    adb disconnect &>/dev/null
+    PhoneIp=192.168.1.254 # Make the phone's ip address static
+    PhonePort=5555 # Phone Adb Port
+
+    if ping -c 1 ${PhoneIp} &>/dev/null; then
+        if nc -z -v -w5 ${PhoneIp} ${PhonePort} &>/dev/null; then
+            adb connect ${PhoneIp}:${PhonePort} &>/dev/null
+            echo "\nWireless Connect Devices!\n"
+            scrcpy --always-on-top &>/dev/null &
+        else
+            echo "Rejected connection on phone"
+        fi
+    elif adb usb &>/dev/null; then
+        echo "\nUSB Connect Devices!\n"
+        sleep 3
+        scrcpy --always-on-top &>/dev/null &
+    else
+        echo "\nNot Devices!"
+    fi
 }
+
 
 rsa(){
     echo "N: "; read N
@@ -157,40 +197,90 @@ rsa(){
 }
 
 base(){ # base "aEx0QWt5ZG4="
-    echo "$@" | base32 -d; echo "└────Base32"
-    echo "$@" | base58 -d; echo "└────Base58"
-    echo "$@" | base64 -d; echo "└────Base64"
+    echo -e "$@" | base32 -d
+    echo "\e[32m  └────Base32 \033[0m"
+    echo -e "$@" | base58 -d
+    echo "\e[32m  └────Base58 \033[0m"
+    echo -e "$@" | base64 -d
+    echo "\e[32m  └────Base64 \033[0m"
 }
 
-rot(){ # rot "gKsZjxcm"
-    echo "$@" | tr 'd-za-cD-ZA-C' 'a-zA-Z'; echo "└────Rot3"
-    echo "$@" | tr 'e-za-dE-ZA-D' 'a-zA-Z'; echo "└────Rot4"
-    echo "$@" | tr 'f-za-eF-ZA-E' 'a-zA-Z'; echo "└────Rot5"
-    echo "$@" | tr 'g-za-fG-ZA-F' 'a-zA-Z'; echo "└────Rot6"
-    echo "$@" | tr 'h-za-gH-ZA-G' 'a-zA-Z'; echo "└────Rot7"
-    echo "$@" | tr 'i-za-hI-ZA-H' 'a-zA-Z'; echo "└────Rot8"
-    echo "$@" | tr 'j-za-iJ-ZA-I' 'a-zA-Z'; echo "└────Rot9"
-    echo "$@" | tr 'k-za-jK-ZA-J' 'a-zA-Z'; echo "└────Rot10"
-    echo "$@" | tr 'l-za-kL-ZA-K' 'a-zA-Z'; echo "└────Rot11"
-    echo "$@" | tr 'm-za-lM-ZA-L' 'a-zA-Z'; echo "└────Rot12"
-    echo "$@" | tr 'n-za-mN-ZA-M' 'a-zA-Z'; echo "└────Rot13"
-    echo "$@" | tr 'o-za-nO-ZA-N' 'a-zA-Z'; echo "└────Rot14"
-    echo "$@" | tr 'p-za-oP-ZA-O' 'a-zA-Z'; echo "└────Rot15"
-    echo "$@" | tr 'q-za-pQ-ZA-P' 'a-zA-Z'; echo "└────Rot16"
-    echo "$@" | tr 'r-za-qR-ZA-Q' 'a-zA-Z'; echo "└────Rot17"
-    echo "$@" | tr 's-za-rS-ZA-R' 'a-zA-Z'; echo "└────Rot18"
-    echo "$@" | tr 't-za-sT-ZA-S' 'a-zA-Z'; echo "└────Rot19"
-    echo "$@" | tr 'u-za-tU-ZA-T' 'a-zA-Z'; echo "└────Rot20"
-    echo "$@" | tr 'v-za-uV-ZA-U' 'a-zA-Z'; echo "└────Rot21"
-    echo "$@" | tr 'w-za-vW-ZA-V' 'a-zA-Z'; echo "└────Rot22"
-    echo "$@" | tr 'x-za-wX-ZA-W' 'a-zA-Z'; echo "└────Rot23"
-    echo "$@" | tr 'y-za-xY-ZA-X' 'a-zA-Z'; echo "└────Rot24"
-    echo "$@" | tr 'z-za-yZ-ZA-Y' 'a-zA-Z'; echo "└────Rot25"
-    echo "$@" | tr '\!-~' 'P-~\!-O'; echo "└────Rot47"
+rot() { # rot "gKsZjxcm"
+    echo "$@" | tr 'd-za-cD-ZA-C' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot3 \033[0m"
+
+    echo "$@" | tr 'e-za-dE-ZA-D' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot4 \033[0m"
+
+    echo "$@" | tr 'f-za-eF-ZA-E' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot5 \033[0m"
+
+    echo "$@" | tr 'g-za-fG-ZA-F' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot6 \033[0m"
+
+    echo "$@" | tr 'h-za-gH-ZA-G' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot7 \033[0m"
+
+    echo "$@" | tr 'i-za-hI-ZA-H' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot8 \033[0m"
+
+    echo "$@" | tr 'j-za-iJ-ZA-I' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot9 \033[0m"
+
+    echo "$@" | tr 'k-za-jK-ZA-J' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot10 \033[0m"
+
+    echo "$@" | tr 'l-za-kL-ZA-K' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot11 \033[0m"
+
+    echo "$@" | tr 'm-za-lM-ZA-L' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot12 \033[0m"
+
+    echo "$@" | tr 'n-za-mN-ZA-M' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot13 \033[0m"
+
+    echo "$@" | tr 'o-za-nO-ZA-N' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot14 \033[0m"
+
+    echo "$@" | tr 'p-za-oP-ZA-O' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot15 \033[0m"
+
+    echo "$@" | tr 'q-za-pQ-ZA-P' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot16 \033[0m"
+
+    echo "$@" | tr 'r-za-qR-ZA-Q' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot17 \033[0m"
+
+    echo "$@" | tr 's-za-rS-ZA-R' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot18 \033[0m"
+
+    echo "$@" | tr 't-za-sT-ZA-S' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot19 \033[0m"
+
+    echo "$@" | tr 'u-za-tU-ZA-T' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot20 \033[0m"
+
+    echo "$@" | tr 'v-za-uV-ZA-U' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot21 \033[0m"
+
+    echo "$@" | tr 'w-za-vW-ZA-V' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot22 \033[0m"
+
+    echo "$@" | tr 'x-za-wX-ZA-W' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot23 \033[0m"
+
+    echo "$@" | tr 'y-za-xY-ZA-X' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot24 \033[0m"
+
+    echo -e "$@" | tr 'z-za-yZ-ZA-Y' 'a-zA-Z'
+    echo -e "\e[32m  └────Rot25 \033[0m"
+
+    echo "$@" | tr '\!-~' 'P-~\!-O'
+    echo -e "\e[32m  └────Rot47 \033[0m"
 }
 
 hex(){
-    echo "$@" | xxd -r -p
+    echo -e "$@" | xxd -r -p | grep .
 }
 
 urlencode() { # urlencode "hello world"
@@ -209,18 +299,69 @@ urldecode() { # urldecode "hello+%26+world"
    echo "$@" | sed 's@+@ @g;s@%@\\x@g' | xargs -0 printf "%b"
 }
 
-caesar(){ # caesar "iMuBlzeo"
-    decaesar(){
+caesar() { # caesar "iMuBlzeo"
+    leg=$@
+
+    function decaesar() {
         local value
         local cipher
         value=({a..z})
         cipher=()
-        cipher+=("${value[@]:(-(26-$2))}")
-        cipher+=("${value[@]:0:$(($2+1))}")
+        cipher+=("${value[@]:(-(26 - $2))}")
+        cipher+=("${value[@]:0:$(($2 + 1))}")
         echo "$1" | tr '[:upper:]' '[:lower:]' | tr "${value[*]}" "${cipher[*]}"
     }
-    
-    for i in {1..26};do
-        printf "$(decaesar "$@" $i)\n";
+
+    for i in {1..26}; do
+        printf "\e[32m$(decaesar "$@" $i) \033[0m \n\033[0;35m"
+        seq -s- ${#leg} | tr -d '[:digit:]'
     done
+
+}
+
+morse() {
+    echo "$@" | sed -e 's/\.-/A/g' -e 's/-\.\.\./B/g' -e 's/-A\./C/g' -e 's/-\.\./D/g' -e 's/\./E/g' \
+        -e 's/EAE/F/g' -e 's/--E/G/g' -e 's/EEEE/H/g' -e 's/EE/I/g' -e 's/A--/J/g' -e 's/-A/K/g' -e 's/AI/L/g' \
+        -e 's/--/M/g' -e 's/-E/N/g' -e 's/M-/O/g' -e 's/AN/P/g' -e 's/-K/Q/g' -e 's/AE/R/g' -e 's/IE/S/g' \
+        -e 's/-/T/g' -e 's/EA/U/g' -e 's/IA/V/g' -e 's/AT/W/g' -e 's/NA/X/g' -e 's/KT/Y/g' -e 's/TD/Z/g' \
+        -e 's/JT/1/g' -e 's/EJ/2/g' -e 's/VT/3/g' -e 's/SA/4/g' -e 's/HE/5/g' -e 's/BE/6/g' -e 's/TB/7/g' \
+        -e 's/MD/8/g' -e 's/MG/9/g' -e 's/MO/0/g' -e 's/AAA/\./g' -e 's/GW/,/g' -e 's/UD/?/g' -e 's/KW/!/g' \
+        -e 's/MB/:/g' -e 's/AF/"/g' -e "s/WG/'/g" -e 's/AR/+/g' -e 's/BA/-/g' -e 's/DA/=/g' -e 's/KN/(/g' \
+        -e 's/KK/)/g' -e 's/LE/\&/g' -e 's/TF/\//g' -e 's/AC/@/g'
+}
+
+
+csvtosql() {
+    fname="$1"
+    sed 's/\s*,*\s*$//g' "$fname" >tmp.csv
+    op=$(echo "$fname" | cut -d"." -f 1)
+    opfile="$op.sql"
+    op="\`$op\`"
+    columns=$(head --lines=1 tmp.csv | sed 's/,/`,`/g' | tr -d "\r\n")
+    columns="\`$columns\`"
+    tail --lines=+2 tmp.csv | while read l; do
+        values=$(echo $l | sed 's/,/\",\"/g' | tr -d "\r\n")
+        values="\"$values\""
+        echo "INSERT INTO $op($columns) VALUES ($values);"
+    done >"$opfile"
+    rm tmp.csv
+}
+
+web(){
+    sudo systemctl $1 vsftpd.service mysqld.service apache2.service
+}
+
+www(){
+    python -m SimpleHTTPServer 80
+}
+
+gitall() {
+    git add .
+    if [ "$1" != "" ] # or better, if [ -n "$1" ]
+    then
+        git commit -m "$1"
+    else
+        git commit -m update
+    fi
+    git push
 }
